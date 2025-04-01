@@ -1,30 +1,17 @@
-const gameRules = require("../game-rules/gameRules");
-
+const gameRules = require('../game-rules/gameRules');
+let repeatPlay = false;
 let p1Pits = [];
 let p2Pits = [];
 let p1Score = 0;
 let p2Score = 0;
-let repeatPlay = false;
-let gameOver = false;
 
-const updateGameState = (currP1Pits, currP2Pits, currP1Score, currP2Score, clickedPitIndex, currentPlayer) => {
-  p1Pits = currP1Pits;
-  p2Pits = currP2Pits;
-  p1Score = currP1Score;
-  p2Score = currP2Score;
-  const parsedClickedPitIndex = parseInt(clickedPitIndex);
-  const isPlayer1 = currentPlayer === "p1";
+const play = (clickedPitIndex, isPlayer1, p1PitsCurrent, p2PitsCurrent, p1CurrentScore, p2CurrentScore) => {
+  p1Pits = p1PitsCurrent;
+  p2Pits = p2PitsCurrent;
+  p1Score = p1CurrentScore;
+  p2Score = p2CurrentScore;
+  let gameOver = false;
 
-  if (!validatePlay(isPlayer1, parsedClickedPitIndex, p1Pits, p2Pits)) return { p1Pits, p2Pits, p1Score, p2Score, repeatPlay, gameOver };
-
-  play(parsedClickedPitIndex, isPlayer1);
-
-  gameRules.checkGameOver(p1Pits, p2Pits) ? gameOver = true : gameOver = false;
-
-  return { p1Pits, p2Pits, p1Score, p2Score, repeatPlay, gameOver };
-};
-
-const play = (clickedPitIndex, isPlayer1) => {
   const valueSelected = isPlayer1 ? p1Pits[clickedPitIndex] : p2Pits[clickedPitIndex];
   isPlayer1 ? p1Pits[clickedPitIndex] = 0 : p2Pits[clickedPitIndex] = 0;
 
@@ -32,8 +19,9 @@ const play = (clickedPitIndex, isPlayer1) => {
 
   const { p1UpdatedPits, p2UpdatedPits } = gameRules.checkStealValueRule(p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex);
 
-  p1Pits = p1UpdatedPits;
-  p2Pits = p2UpdatedPits;
+  gameRules.checkGameOver(p1UpdatedPits, p1UpdatedPits) ? gameOver = true : gameOver = false;
+
+  return { p1UpdatedPits, p2UpdatedPits, p1Score, p2Score, repeatPlay, gameOver };
 }
 
 const handleTurn = (valueSelected, clickedPitIndex, isPlayer1) => {
@@ -81,13 +69,4 @@ const updateP2Pits = (currValue, startIndex) => {
   return currValue;
 }
 
-const validatePlay = (isPlayer1, parsedClickedPitIndex, p1Pits, p2Pits) => {
-  if (isPlayer1 && p1Pits[parsedClickedPitIndex] === 0 || !isPlayer1 && p2Pits[parsedClickedPitIndex] === 0) {
-    repeatPlay = true;
-    return false;
-  }
-
-  return true;
-}
-
-module.exports = { updateGameState };
+module.exports = { play };

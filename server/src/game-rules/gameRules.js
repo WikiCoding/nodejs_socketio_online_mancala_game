@@ -35,4 +35,11 @@ const checkRepeatPlayRule = (clickedPitIndex, valueSelected, isPlayer1) => {
   return repeatPlay;
 }
 
-module.exports = { checkStealValueRule, checkRepeatPlayRule };
+const checkGameOver = (p1Pits, p2Pits) => {
+  const p1Empty = p1Pits.every(pit => pit === 0);
+  const p2Empty = p2Pits.every(pit => pit === 0);
+
+  return p1Empty || p2Empty ? true : false;
+}
+
+module.exports = { checkStealValueRule, checkRepeatPlayRule, checkGameOver };

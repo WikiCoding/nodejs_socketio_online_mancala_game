@@ -4,6 +4,9 @@ const p1Pits = document.querySelectorAll("#p1 .button");
 const p2Pits = document.querySelectorAll("#p2 .button");
 const p1Score = document.querySelector(".p1input");
 const p2Score = document.querySelector(".p2input");
+const modal = document.getElementById("myModal");
+const gameOverTextWinner = document.getElementById('game-notes-modal-winner');
+const gameOverTextLoser = document.getElementById('game-notes-modal-loser');
 
 const gameStateBuilder = () => {
   const p1PitsState = [];
@@ -46,4 +49,32 @@ socket.on("game-state-update", (newGameState) => {
 
   p1Score.value = newGameState.p1Score;
   p2Score.value = newGameState.p2Score;
+
+  if (newGameState.gameOver) {
+    modal.style.display = "block";
+
+    let winner = "";
+    let loser = "";
+
+    if (newGameState.p1Score > newGameState.p2Score) {
+      winner = `Player 1 wins with ${newGameState.p1Score}`;
+    } else {
+      winner = `Player 2 wins with ${newGameState.p2Score}`;
+    }
+
+    if (newGameState.p1Score < newGameState.p2Score) {
+      loser = `Player 1 loses with ${newGameState.p1Score}`;
+    } else {
+      loser = `Player 2 loses with ${newGameState.p2Score}`;
+    }
+
+    gameOverTextWinner.value = winner;
+    gameOverTextLoser.value = loser;
+  }
 });
+
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
