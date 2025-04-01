@@ -30,6 +30,8 @@ io.on("connection", (socket) => {
     const newGameState = gameState.updateGameState(p1PitsState, p2PitsState, p1ScoreState, p2ScoreState, pitIndex.split("-")[1],
       pitIndex.split("-")[0]);
 
+    console.log("New game state: ", newGameState);
+
     io.emit("game-state-update", newGameState);
   });
 
