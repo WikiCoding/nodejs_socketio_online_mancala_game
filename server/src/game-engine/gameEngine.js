@@ -13,9 +13,8 @@ const play = (clickedPitIndex, isPlayer1, p1PitsCurrent, p2PitsCurrent, p1Curren
   let gameOver = false;
 
   const valueSelected = isPlayer1 ? p1Pits[clickedPitIndex] : p2Pits[clickedPitIndex];
-  isPlayer1 ? p1Pits[clickedPitIndex] = 0 : p2Pits[clickedPitIndex] = 0;
 
-  // TODO: in fact, this is not fully ok because it will replace the pits vector but then it gets updated on top of this creating the bug.
+  // TODO: in fact, this is not fully ok because it will replace the pits vector but then it gets updated on top of this creating the bug. Neither should be returning updated things...
   const { p1UpdatedPits, p2UpdatedPits, currentP1Score, currentP2Score, valueSelectedUpdated } = gameRules.checkStealValueRule(p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex, p1Score, p2Score);
 
   p1Pits = p1UpdatedPits;
@@ -31,49 +30,33 @@ const play = (clickedPitIndex, isPlayer1, p1PitsCurrent, p2PitsCurrent, p1Curren
 }
 
 const handleTurn = (valueSelected, clickedPitIndex, isPlayer1) => {
-  let currValue = valueSelected;
+  gameRules.checkRepeatPlayRule(clickedPitIndex, valueSelected, isPlayer1);
 
-  // rule for when it lands in score pit!
-  repeatPlay = gameRules.checkRepeatPlayRule(clickedPitIndex, valueSelected, isPlayer1);
+  const currentGameStateVector = buildCurrentGameStateVector(p1Pits, p1Score, p2Pits, p2Score);
 
-  if (isPlayer1 && valueSelected > clickedPitIndex || !isPlayer1 && valueSelected + clickedPitIndex >= p2Pits.length) {
-    isPlayer1 ? p1Score++ : p2Score++;
-    currValue--;
+  const convertedPitIndex = convertSelectedPitIndex(clickedPitIndex, isPlayer1);
+
+  currentGameStateVector[convertedPitIndex] = 0;
+
+  for (i = valueSelected, j = convertedPitIndex + 1; i > 0; i--) {
+    currentGameStateVector[j]++;
+    j++;
+    if (j === 14) j = 0;
   }
 
-  currValue = isPlayer1 ? updateP1Pits(currValue, clickedPitIndex) : updateP2Pits(currValue, clickedPitIndex);
-
-  if (currValue > 0) {
-    currValue = isPlayer1 ? updateP2Pits(currValue, -1) : updateP1Pits(currValue, p1Pits.length);
-  }
-
-  if (currValue > 0) {
-    isPlayer1 ? p2Score++ : p1Score++;
-    currValue--;
-    isPlayer1 ? updateP1Pits(currValue, p1Pits.length) : updateP2Pits(currValue, p2Pits.length);
-  }
-
-  if (currValue > 0) console.log("Overflow detected.");
+  p1Pits = currentGameStateVector.slice(0, 6).reverse();
+  p2Pits = currentGameStateVector.slice(7, 13)
+  p1Score = currentGameStateVector[6];
+  p2Score = currentGameStateVector[13];
 }
 
-const updateP1Pits = (currValue, startIndex) => {
-  for (let i = startIndex - 1; i >= 0; i--) {
-    if (currValue === 0) break;
-    p1Pits[i]++;
-    currValue--;
-  }
-
-  return currValue;
+const convertSelectedPitIndex = (clickedPitIndex, isPlayer1) => {
+  // player1 is like this conversion due to array being reversed
+  return isPlayer1 ? p1Pits.length - 1 - clickedPitIndex : clickedPitIndex + 7;
 }
 
-const updateP2Pits = (currValue, startIndex) => {
-  for (let i = startIndex + 1; i <= p2Pits.length; i++) {
-    if (currValue === 0 || i === 6) break;
-    p2Pits[i]++;
-    currValue--;
-  }
-
-  return currValue;
+const buildCurrentGameStateVector = (p1Pits, p1Score, p2Pits, p2Score) => {
+  return [...p1Pits.reverse(), p1Score, ...p2Pits, p2Score];
 }
 
 module.exports = { play };
