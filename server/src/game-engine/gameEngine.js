@@ -15,21 +15,28 @@ const play = (clickedPitIndex, isPlayer1, p1PitsCurrent, p2PitsCurrent, p1Curren
   const valueSelected = isPlayer1 ? p1Pits[clickedPitIndex] : p2Pits[clickedPitIndex];
   isPlayer1 ? p1Pits[clickedPitIndex] = 0 : p2Pits[clickedPitIndex] = 0;
 
-  handleTurn(valueSelected, clickedPitIndex, isPlayer1);
+  // TODO: in fact, this is not fully ok because it will replace the pits vector but then it gets updated on top of this creating the bug.
+  const { p1UpdatedPits, p2UpdatedPits, currentP1Score, currentP2Score, valueSelectedUpdated } = gameRules.checkStealValueRule(p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex, p1Score, p2Score);
 
-  const { p1UpdatedPits, p2UpdatedPits } = gameRules.checkStealValueRule(p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex);
+  p1Pits = p1UpdatedPits;
+  p2Pits = p2UpdatedPits;
+  p1Score = currentP1Score;
+  p2Score = currentP2Score;
 
-  gameRules.checkGameOver(p1UpdatedPits, p1UpdatedPits) ? gameOver = true : gameOver = false;
+  handleTurn(valueSelectedUpdated, clickedPitIndex, isPlayer1);
 
-  return { p1UpdatedPits, p2UpdatedPits, p1Score, p2Score, repeatPlay, gameOver };
+  gameRules.checkGameOver(p1Pits, p2Pits) ? gameOver = true : gameOver = false;
+
+  return { p1UpdatedPits: p1Pits, p2UpdatedPits: p2Pits, p1Score, p2Score, repeatPlay, gameOver };
 }
 
 const handleTurn = (valueSelected, clickedPitIndex, isPlayer1) => {
   let currValue = valueSelected;
 
+  // rule for when it lands in score pit!
+  repeatPlay = gameRules.checkRepeatPlayRule(clickedPitIndex, valueSelected, isPlayer1);
+
   if (isPlayer1 && valueSelected > clickedPitIndex || !isPlayer1 && valueSelected + clickedPitIndex >= p2Pits.length) {
-    // rule for when it lands in score pit!
-    repeatPlay = gameRules.checkRepeatPlayRule(clickedPitIndex, valueSelected, isPlayer1);
     isPlayer1 ? p1Score++ : p2Score++;
     currValue--;
   }

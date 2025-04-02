@@ -1,12 +1,14 @@
-const checkStealValueRule = (p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex) => {
-  // checks if it's player 1 turn and p1Pit[landingPitIndex] lands in a zero value pit and if so, it will add the p2Pit[landingPitIndex] to the p1Pit[landingPitIndex] score and set the p2Pit[landingPitIndex] to 0. Does the opposite for player 2
+const checkStealValueRule = (p1Pits, p2Pits, isPlayer1, valueSelected, clickedPitIndex, p1Score, p2Score) => {
   let lastPitIndex = 0;
+  let valueSelectedUpdated = valueSelected; // this update is needed so the handleTurn updates to the vector doesn't override the value of lastPitIndex
 
   if (isPlayer1 && valueSelected <= clickedPitIndex) {
     lastPitIndex = clickedPitIndex - valueSelected;
     if (p1Pits[lastPitIndex] === 0) {
-      p1Pits[lastPitIndex] += p2Pits[lastPitIndex];
+      p1Score += p2Pits[lastPitIndex] + 1;
+      p1Pits[lastPitIndex] = 0;
       p2Pits[lastPitIndex] = 0;
+      valueSelectedUpdated = valueSelected - 1;
     }
   }
 
@@ -14,12 +16,14 @@ const checkStealValueRule = (p1Pits, p2Pits, isPlayer1, valueSelected, clickedPi
     lastPitIndex = clickedPitIndex + valueSelected;
 
     if (p2Pits[lastPitIndex] === 0) {
-      p2Pits[lastPitIndex] += p1Pits[lastPitIndex] + 1;
+      p2Score += p1Pits[lastPitIndex] + 1;
+      p2Pits[lastPitIndex] = 0;
       p1Pits[lastPitIndex] = 0;
+      valueSelectedUpdated = valueSelected - 1;
     }
   }
 
-  return { p1UpdatedPits: p1Pits, p2UpdatedPits: p2Pits };
+  return { p1UpdatedPits: p1Pits, p2UpdatedPits: p2Pits, currentP1Score: p1Score, currentP2Score: p2Score, valueSelectedUpdated };
 }
 
 const checkRepeatPlayRule = (clickedPitIndex, valueSelected, isPlayer1) => {
