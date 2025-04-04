@@ -77,28 +77,28 @@ describe('Game Engine', () => {
     });
 
     test('should correctly handle player 1 turn and score and steal value from player 2 pit when landing on his pit with value 0', () => {
-      const p1Pits = [0, 4, 4, 4, 4, 4];
-      const p2Pits = [4, 4, 4, 4, 4, 4];
-      const p1Score = 0;
+      const p1Pits = [5, 0, 4, 4, 4, 4];
+      const p2Pits = [5, 4, 4, 4, 4, 4];
+      const p1Score = 1;
       const p2Score = 0;
-      const clickedPitIndex = 4;
+      const clickedPitIndex = 5;
       const isPlayer1 = true;
 
       const result = play(clickedPitIndex, isPlayer1, p1Pits, p2Pits, p1Score, p2Score);
 
-      expect(result.p1UpdatedPits[0]).toBe(0);
-      expect(result.p1UpdatedPits[1]).toBe(5);
+      expect(result.p1UpdatedPits[0]).toBe(5);
+      expect(result.p1UpdatedPits[1]).toBe(0);
       expect(result.p1UpdatedPits[2]).toBe(5);
       expect(result.p1UpdatedPits[3]).toBe(5);
-      expect(result.p1UpdatedPits[4]).toBe(0);
-      expect(result.p1UpdatedPits[5]).toBe(4);
-      expect(result.p2UpdatedPits[0]).toBe(0);
-      expect(result.p2UpdatedPits[1]).toBe(4);
+      expect(result.p1UpdatedPits[4]).toBe(5);
+      expect(result.p1UpdatedPits[5]).toBe(0);
+      expect(result.p2UpdatedPits[0]).toBe(5);
+      expect(result.p2UpdatedPits[1]).toBe(0);
       expect(result.p2UpdatedPits[2]).toBe(4);
       expect(result.p2UpdatedPits[3]).toBe(4);
       expect(result.p2UpdatedPits[4]).toBe(4);
       expect(result.p2UpdatedPits[5]).toBe(4);
-      expect(result.p1Score).toBe(5);
+      expect(result.p1Score).toBe(6);
       expect(result.p2Score).toBe(0);
       expect(result.repeatPlay).toBe(false);
       expect(result.gameOver).toBe(false);
