@@ -9,7 +9,7 @@ const updateGameState = (currP1Pits, currP2Pits, currP1Score, currP2Score, click
 
   const { p1UpdatedPits, p2UpdatedPits, p1Score, p2Score, repeatPlay, gameOver } = gameEngine.play(parsedClickedPitIndex, isPlayer1, currP1Pits, currP2Pits, currP1Score, currP2Score);
 
-  return { p1Pits: p1UpdatedPits, p2Pits: p2UpdatedPits, p1Score, p2Score, repeatPlay, gameOver };
+  return { p1Pits: p1UpdatedPits, p2Pits: p2UpdatedPits, p1Score, p2Score, repeatPlay, isPlayer1, gameOver };
 };
 
 const validatePlay = (isPlayer1, parsedClickedPitIndex, p1Pits, p2Pits) => {

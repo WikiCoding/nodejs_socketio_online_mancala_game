@@ -50,6 +50,8 @@ socket.on("game-state-update", (newGameState) => {
   p1Score.value = newGameState.p1Score;
   p2Score.value = newGameState.p2Score;
 
+  pitsDisableChange(newGameState);
+
   if (newGameState.gameOver) {
     modal.style.display = "block";
 
@@ -72,6 +74,38 @@ socket.on("game-state-update", (newGameState) => {
     gameOverTextLoser.value = loser;
   }
 });
+
+const pitsDisableChange = (newGameState) => {
+  if (newGameState.isPlayer1 && newGameState.repeatPlay) {
+    for (let i = 0; i < p1Pits.length; i++) {
+      p2Pits[i].setAttribute("disabled", true);
+      p1Pits[i].removeAttribute("disabled");
+    }
+    return;
+  }
+
+  if (newGameState.isPlayer1 && !newGameState.repeatPlay) {
+    for (let i = 0; i < p1Pits.length; i++) {
+      p1Pits[i].setAttribute("disabled", true);
+      p2Pits[i].removeAttribute("disabled");
+    }
+    return;
+  }
+
+  if (!newGameState.isPlayer1 && newGameState.repeatPlay) {
+    for (let i = 0; i < p2Pits.length; i++) {
+      p1Pits[i].setAttribute("disabled", true);
+      p2Pits[i].removeAttribute("disabled");
+    }
+  }
+
+  if (!newGameState.isPlayer1 && !newGameState.repeatPlay) {
+    for (let i = 0; i < p2Pits.length; i++) {
+      p2Pits[i].setAttribute("disabled", true);
+      p1Pits[i].removeAttribute("disabled");
+    }
+  }
+}
 
 window.onclick = function (event) {
   if (event.target == modal) {
