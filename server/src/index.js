@@ -13,8 +13,13 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(clientDirPath));
 
+let connectedUsers = [];
+let userNames = [];
+
 io.on("connection", (socket) => {
   console.log("New client connected ", socket.id);
+  connectedUsers.push(socket.id);
+  console.log("Currently connected users ", connectedUsers);
 
   socket.on("player-selection", (pitIndex, currentGameState) => {
     const { p1PitsState, p2PitsState, p1ScoreState, p2ScoreState } = currentGameState;
@@ -27,8 +32,19 @@ io.on("connection", (socket) => {
     io.emit("game-state-update", newGameState);
   });
 
+  socket.on("set-player-name", (username) => {
+    userNames.push({ socketId: socket.id, username });
+  });
+
+  socket.on("chat-message", (message) => {
+    io.emit("chat-message",
+      { message, socketId: socket.id, user: userNames.filter(users => users.socketId === socket.id) });
+  });
+
   socket.on("disconnect", () => {
+    connectedUsers = connectedUsers.filter(socketId => socketId !== socket.id);
     console.log("Client disconnected ", socket.id);
+    console.log("Currently connected users ", connectedUsers);
   });
 });
 

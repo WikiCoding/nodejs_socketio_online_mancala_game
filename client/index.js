@@ -5,8 +5,12 @@ const p2Pits = document.querySelectorAll("#p2 .button");
 const p1Score = document.querySelector(".p1input");
 const p2Score = document.querySelector(".p2input");
 const modal = document.getElementById("myModal");
+const usernameModal = document.getElementById("usernameModal");
 const gameOverTextWinner = document.getElementById('game-notes-modal-winner');
 const gameOverTextLoser = document.getElementById('game-notes-modal-loser');
+const chatBox = document.getElementById("chat-box");
+const chatInput = document.getElementById("chat-input");
+const sendChatButton = document.getElementById("send-chat");
 
 const gameStateBuilder = () => {
   const p1PitsState = [];
@@ -23,6 +27,18 @@ const gameStateBuilder = () => {
 
   return { p1PitsState, p2PitsState, p1ScoreState, p2ScoreState };
 }
+
+socket.on("connect", () => {
+  usernameModal.style.display = "block";
+});
+
+document.getElementById("set-username-button").addEventListener("click", () => {
+  const playerName = document.getElementById("username-input").value.trim();
+  if (playerName) {
+    socket.emit("set-player-name", playerName);
+    usernameModal.style.display = "none";
+  }
+});
 
 p1Pits.forEach((pit) => {
   pit.addEventListener("click", () => {
@@ -112,3 +128,20 @@ window.onclick = function (event) {
     modal.style.display = "none";
   }
 }
+
+sendChatButton.addEventListener("click", () => {
+  const message = chatInput.value.trim();
+  if (message) {
+    socket.emit("chat-message", message);
+    chatInput.value = "";
+  }
+});
+
+socket.on("chat-message", ({ message, socketId, user }) => {
+  const playerName = user[0].username || socketId;
+
+  const messageElement = document.createElement("div");
+  messageElement.innerHTML = `<strong>${playerName}:</strong> ${message}`;
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
